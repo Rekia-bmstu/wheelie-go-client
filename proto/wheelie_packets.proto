@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+option java_package = "com.qoollo.wheelie.proto";
+option csharp_namespace = "Qoollo.Wheelie.Common.Proto";
+option go_package = "github.com/Qoollo/wheelie-go/proto;proto";
+
+// Tag: 0
+message FireAndForgetPacket {
+  string id = 1; // GUID
+  int32 type = 2; // Type of Message (Application-level data container) stored in binary format in Payload field
+  bytes payload = 3; // Application-level Message in binary format
+}
+
+// Tag: 1
+message ConnectPacket {
+  string client_id = 1; // Client's GUID
+}
+
+// Tag: 2
+message ConnectResponsePacket {
+  string server_id = 1; // Server's GUID
+  int32 status_code = 2; // Response status code (0 - success, etc.)
+  string description = 3; // Optional description of response status code, depends on concrete implementation
+}
+
+// Tag: 3
+message SetupPacket {
+  string protocol_version = 1; // Client's protocol version
+  bytes payload = 2; // Some client's setup information, reserverd for future extending, empty for current protocol version
+}
+
+// Tag: 4
+message SetupResponsePacket {
+  string protocol_version = 1; // Server's protocol version
+  bool can_resume = 2; // If true, server is satisfied by client's protocol version and can continue communication. If false - server will disconnect after sending this packet
+  bytes payload = 3; // SetupResponsePacketPayload in binary form due to always correct SetupResponsePacket parsing. Can contain different fields depending on protocol version
+}
+
+message SetupResponsePacketPayload {
+  bool need_auth = 1; // If true, client need to Auth first before resuming communication
+}
+
+// Tag: 5
+message AuthPacket {
+  bytes payload = 1; // Application-level Message with auth data. Transfered "as-is"
+}
+
+// Tag: 6
+message AuthResponsePacket {
+  int32 status_code = 1; // Response status code (0 - success, etc.)
+  string description = 2; // Optional description of response status code, depends on concrete implementation
+  bytes payload = 3; // Application-level Message with auth response data. Transfered "as-is"
+}
+
+// Tag: 7
+message PingPacket {
+  string id = 1; // GUID
+}
+
+// Tag: 8
+message PingResponsePacket {
+  string request_id = 1; // GUID of PingPacket which is responded
+}
+
+// Tag: 9
+message ClosePacket {
+  int32 status_code = 1; // Status code with client's reason of closing connection (0 - application shutdown, etc.)
+  string description = 2; // Optional description of status code, depends on concrete implementation
+}
+
+// Tag: 10
+message DisconnectPacket {
+  int32 status_code = 1; // Status code with server's reason of closing connection (0 - server shutdown, etc.)
+  string description = 2; // Optional description of status code, depends on concrete implementation
+}
+
+// Tag: 11
+message GetPacket {
+  string id = 1; // GUID
+  int32 type = 2; // Type of Message (Application-level data container) stored in binary format in Payload field
+  bytes payload = 3; // Application-level Message in binary format
+}
+
+// Tag: 12
+message GetResponsePacket {
+  string request_id = 1; // GUID of GetPacket which is responded
+  int32 status_code = 2; // Response status code (0 - success, etc.)
+  string description = 3; // Optional description of response status code, depends on concrete implementation
+  int32 type = 4; // Type of Message (Application-level data container) stored in binary format in Payload field
+  bytes payload = 5; // Application-level Message in binary format
+}
+
+// Tag: 13
+message CriticalGetPacket {
+  string id = 1; // GUID
+  int32 type = 2; // Type of Message (Application-level data container) stored in binary format in Payload field
+  bytes payload = 3; // Application-level Message in binary format
+}
+
+// Tag: 14
+message CriticalGetResponsePacket {
+  string request_id = 1; // GUID of GetPacket which is responded
+  int32 status_code = 2; // Response status code (0 - success, etc.)
+  string description = 3; // Optional description of response status code, depends on concrete implementation
+  int32 type = 4; // Type of Message (Application-level data container) stored in binary format in Payload field
+  bytes payload = 5; // Application-level Message in binary format
+}
+
+// Tag: 15
+message ServerPushPacket {
+  string id = 1; // GUID
+  int32 type = 2; // Type of Message (Application-level data container) stored in binary format in Payload field
+  bytes payload = 3; // Application-level Message in binary format
+}
+
+// Tag: 16
+message ServerPushAckPacket {
+  string request_id = 1; // GUID of ServerPushPacket which receiving we want to acknowledge
+}
+
+// Tag: 17
+message CriticalServerPushPacket {
+  string id = 1; // GUID
+  int32 type = 2; // Type of Message (Application-level data container) stored in binary format in Payload field
+  bytes payload = 3; // Application-level Message in binary format
+}
+
+// Tag: 18
+message CriticalServerPushAckPacket {
+  string request_id = 1; // GUID of ServerPushPacket which receiving we want to acknowledge
+}
+
+// Tag: 19
+message MultiPartPacket {
+  string request_id = 1; // GUID of proceeding MultiGetPacket or MultiPushPacket
+  int32 part_index = 2; // Index of transfered part of resource
+  bytes payload = 3; // Part of fractured Message in binary format
+}
+
+// Tag: 20
+message MultiPartAckPacket {
+  string request_id = 1; // GUID of proceeding MultiGetPacket or MultiPushPacket
+  int32 part_index = 2; // Index of acknowledged part of resource
+}
+
+// Tag: 21
+message MultiGetPacket {
+  string id = 1; // GUID
+  int32 type = 2; // Type of Message (Application-level data container) stored in binary format in Payload field
+  int32 start_part = 3; // The part of multipart resource to start downloading from. Indexing starts with 0
+  bytes payload = 4; // Application-level Message in binary format
+}
+
+// Tag: 22
+message MultiGetResponsePacket {
+  string request_id = 1; // GUID of MultiGetPacket which is responded
+  int32 status_code = 2; // Response status code (0 - success, etc.)
+  string description = 3; // Optional description of response status code, depends on concrete implementation
+  int32 max_part_size = 4; // Maximum size of each resource's part in bytes
+  int64 resource_size = 5; // Resource's size in bytes
+  int32 type = 6; // Type of fractured Message, depends on Application-level
+}
+
+// Tag: 23
+message MultiPushPacket {
+  string id = 1; // GUID
+  int32 max_part_size = 2; // Maximum size of each resource's part in bytes
+  int64 resource_size = 3; // Resource's size in bytes
+  int32 type = 4; // Type of Message (Application-level data container) stored in binary format in Payload field
+  bytes payload = 5; // Application-level Message in binary format
+}
+
+// Tag: 24
+message MultiPushResponsePacket {
+  string request_id = 1; // GUID of MultiPushPacket which is responded
+  int32 status_code = 2; // Response status code (0 - success, etc.)
+  string description = 3; // Optional description of response status code, depends on concrete implementation
+  int32 start_part = 4; // The part of multipart resource to start uploading from. Indexing starts with 0
+  int32 type = 5; // Type of fractured Message, depends on Application-level
+}
