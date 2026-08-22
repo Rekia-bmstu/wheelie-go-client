@@ -1,8 +1,6 @@
 syntax = "proto3";
 
-option java_package = "com.qoollo.wheelie.proto";
-option csharp_namespace = "Qoollo.Wheelie.Common.Proto";
-option go_package = "github.com/Qoollo/wheelie-go/proto;proto";
+option go_package = "wheelie-client/internal/pb;pb";
 
 // Tag: 0
 message FireAndForgetPacket {
