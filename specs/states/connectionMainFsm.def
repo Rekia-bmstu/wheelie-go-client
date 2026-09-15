@@ -1,0 +1,22 @@
+autogen definitions fsm;
+
+method = case;
+type   = loop;
+prefix = main_fsm;
+
+state = created, connected, setuped, authorized, processing, disconnected;
+event = connect, setup, authorize, no_authorize_needed, operation, disconnect;
+
+
+transition =
+{ tst  = created; tev = connect; next = connected; },
+{ tst  = created; tev = disconnect; next = disconnected; },
+{ tst  = connected; tev = setup; next = setuped; },
+{ tst  = connected; tev = disconnect; next = disconnected; },
+{ tst  = setuped; tev = authorize; next = authorized; },
+{ tst  = setuped; tev = no_authorize_needed; next = processing; },
+{ tst  = setuped; tev = disconnect; next = disconnected; },
+{ tst  = authorized; tev = operation; next = processing; },
+{ tst  = authorized; tev = disconnect; next = disconnected; },
+{ tst  = processing; tev = operation; next = processing; },
+{ tst  = processing; tev = disconnect; next = disconnected; },
